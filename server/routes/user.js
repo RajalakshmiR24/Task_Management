@@ -1,14 +1,14 @@
 const express = require("express");
-const router = express.Router();
+const userRouter = express.Router();
 const userController = require("../controllers/userController");
 // const protect = require("../middlewares/authMiddleware"); 
-const userValidation = require("../utils/userValidation"); // Import validation middleware
+const userValidation = require("../utils/Validation"); // Import validation middleware
 
 
-router.post("/register",userValidation.validateRegister, userController.register);
+userRouter.post("/register",userValidation.validateRegister, userController.register);
 
-router.post("/login",userValidation.validateLogin, userController.login);
+userRouter.post("/login",userValidation.validateLogin, userController.login);
 
 
 
-module.exports = router;
+module.exports = userRouter;

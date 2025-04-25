@@ -33,3 +33,8 @@ exports.validateLogin = [
     next();
   },
 ];
+
+exports.validateTask = [
+  body("taskName").notEmpty().withMessage("Task name is required"),
+  body("dueDate").isISO8601().withMessage("Valid due date is required"),
+];

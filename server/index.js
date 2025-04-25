@@ -4,6 +4,7 @@ require("dotenv").config();
 
 const connectDB = require("./database/db");
 const userRoutes = require("./routes/user"); // Import user routes
+const taskRoutes = require("./routes/task");
 
 const app = express();
 const PORT = process.env.PORT; 
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
 
 // Use the user routes for user-related APIs
 app.use("/api/users", userRoutes);
+app.use("/api/tasks", taskRoutes);
 
 // Start the server
 app.listen(PORT, () => {
