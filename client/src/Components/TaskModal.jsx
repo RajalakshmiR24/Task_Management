@@ -1,47 +1,179 @@
-// src/components/TaskModal.js
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog } from '@headlessui/react';
+import { useDispatch } from 'react-redux';
+import { createTask } from '../redux/taskSlice';
+import { toast, ToastContainer } from 'react-toastify'; 
+
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const TaskModal = ({ isOpen, onClose }) => {
+  const dispatch = useDispatch();
+
+  const [taskName, setTaskName] = useState('');
+  const [description, setDescription] = useState('');
+  const [dueDate, setDueDate] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const stripHTML = (input) => input.replace(/<\/?[^>]+(>|$)/g, "");
+
+  const getMinDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  const formatDueDate = (dateString) => {
+    const localDate = new Date(dateString);
+    const month = String(localDate.getMonth() + 1).padStart(2, '0');
+    const day = String(localDate.getDate()).padStart(2, '0');
+    const year = localDate.getFullYear();
+    let hours = localDate.getHours();
+    const minutes = String(localDate.getMinutes()).padStart(2, '0');
+    const meridian = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    const formattedHours = String(hours).padStart(2, '0');
+    return `${month}/${day}/${year} ${formattedHours}:${minutes} ${meridian}`;
+  };
+
+  const resetForm = () => {
+    setTaskName('');
+    setDescription('');
+    setDueDate('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    const trimmedTaskName = stripHTML(taskName.trim());
+    const trimmedDescription = stripHTML(description.trim());
+  
+    if (!trimmedTaskName || !dueDate) {
+      toast.error("Task Title and Due Date are required.");
+      return;
+    }
+  
+    if (new Date(dueDate) < new Date()) {
+      toast.error("Due Date cannot be in the past.");
+      return;
+    }
+  
+    setIsSubmitting(true);
+  
+    try {
+      const result = await dispatch(createTask({
+        taskName: trimmedTaskName,
+        description: trimmedDescription,
+        dueDate: formatDueDate(dueDate),
+      })).unwrap();
+  
+      if (result && result.message) {
+        toast.success(result.message || 'Task created successfully!'); 
+      }
+  
+      resetForm();
+      onClose();
+    } catch (error) {
+      console.error('Failed to create task:', error);
+      toast.error(error.message || 'Something went wrong. Please try again.'); 
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" aria-hidden="true" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="bg-white p-8 rounded-lg w-full max-w-lg shadow-lg">
-          <Dialog.Title className="text-lg font-semibold mb-4">Add Task</Dialog.Title>
-          <form className="flex flex-col gap-4">
-            <input
-              type="text"
-              placeholder="Task Title"
-              className="border p-2 rounded-md focus:outline-blue-500"
-            />
-            <textarea
-              placeholder="Description"
-              className="border p-2 rounded-md focus:outline-blue-500 h-24"
-            ></textarea>
-            <input
-              type="datetime-local"
-              className="border p-2 rounded-md focus:outline-blue-500"
-            />
-            <div className="flex justify-end gap-2">
+        <Dialog.Panel className="w-full max-w-lg bg-white rounded-2xl p-6 shadow-lg transition-all">
+          <Dialog.Title className="text-2xl font-bold mb-6 text-center">Add New Task</Dialog.Title>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Task Title */}
+            <div className="flex flex-col">
+              <label htmlFor="taskName" className="font-medium mb-1">
+                Task Title <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="taskName"
+                type="text"
+                placeholder="e.g., Design Landing Page"
+                className="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                value={taskName}
+                onChange={(e) => setTaskName(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Description */}
+            <div className="flex flex-col">
+              <label htmlFor="description" className="font-medium mb-1">
+                Description
+              </label>
+              <textarea
+                id="description"
+                placeholder="e.g., Create a responsive landing page for the new product launch"
+                className="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none h-28 resize-none"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+
+            {/* Due Date */}
+            <div className="flex flex-col">
+              <label htmlFor="dueDate" className="font-medium mb-1">
+                Due Date <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="dueDate"
+                type="datetime-local"
+                className="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                value={dueDate}
+                min={getMinDateTime()}
+                onChange={(e) => setDueDate(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-end gap-3 pt-4">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 border rounded-md hover:bg-gray-100"
+                className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-800"
+                disabled={isSubmitting}
+                className={`px-6 py-2 rounded-md text-white transition
+                  ${isSubmitting ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
               >
-                Save
+                {isSubmitting ? 'Saving...' : 'Save'}
               </button>
             </div>
           </form>
         </Dialog.Panel>
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </Dialog>
   );
 };

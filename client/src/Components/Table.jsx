@@ -1,7 +1,7 @@
-import React from 'react';
-import { MoreVertical } from 'lucide-react';
+import React from "react";
+import { MoreVertical } from "lucide-react";
 
-const TaskTable = ({ tasks, menuOpenId, setMenuOpenId, indexOfFirstTask }) => {
+const TaskTable = ({ tasks, menuOpenId, setMenuOpenId, indexOfFirstTask, onDelete }) => {
   return (
     <>
       <div className="hidden md:block">
@@ -18,23 +18,34 @@ const TaskTable = ({ tasks, menuOpenId, setMenuOpenId, indexOfFirstTask }) => {
           <tbody>
             {tasks.map((task, index) => (
               <tr
-                key={index} 
+                key={index}
                 className="bg-white shadow-md rounded-md my-2 hover:shadow-lg transition"
               >
                 <td className="p-4">{indexOfFirstTask + index + 1}</td>
                 <td className="p-4">
-                  {new Date(task.dueDate).toLocaleString()} 
+                  {new Date(task.dueDate).toLocaleString()}
                 </td>
                 <td className="p-4 font-semibold">{task.taskName}</td>
                 <td className="p-4">{task.description}</td>
                 <td className="p-4 relative">
-                  <button onClick={() => setMenuOpenId(menuOpenId === index ? null : index)}>
+                  <button
+                    onClick={() =>
+                      setMenuOpenId(menuOpenId === index ? null : index)
+                    }
+                  >
                     <MoreVertical />
                   </button>
                   {menuOpenId === index && (
                     <div className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-lg z-10">
-                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Edit</button>
-                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Delete</button>
+                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                        Edit
+                      </button>
+                      <button
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                        onClick={() => onDelete(task._id)} // Trigger delete modal on click
+                      >
+                        Delete
+                      </button>
                     </div>
                   )}
                 </td>
@@ -57,13 +68,24 @@ const TaskTable = ({ tasks, menuOpenId, setMenuOpenId, indexOfFirstTask }) => {
             </p>
 
             <div className="absolute top-4 right-4">
-              <button onClick={() => setMenuOpenId(menuOpenId === index ? null : index)}>
+              <button
+                onClick={() =>
+                  setMenuOpenId(menuOpenId === index ? null : index)
+                }
+              >
                 <MoreVertical />
               </button>
               {menuOpenId === index && (
                 <div className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-lg z-10">
-                  <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Edit</button>
-                  <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Delete</button>
+                  <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                    Edit
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => onDelete(task._id)} // Trigger delete modal on click
+                  >
+                    Delete
+                  </button>
                 </div>
               )}
             </div>

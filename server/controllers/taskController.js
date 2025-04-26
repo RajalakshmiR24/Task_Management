@@ -40,8 +40,8 @@ exports.createTask = async (req, res) => {
     await task.save();
 
     res.status(201).json({
+      code:201,
       message: "Task created successfully",
-      task,
     });
   } catch (err) {
     res.status(200).json({ code:500, message: "Server error", error: err.message });
@@ -51,7 +51,7 @@ exports.createTask = async (req, res) => {
 exports.getTasks = async (req, res) => {
   try {
     const tasks = await Task.find({ userId: req.user.userId }).select(
-      "-__v -updatedAt -_id -userId"
+      "-__v -updatedAt -userId"
     );
 
     if (tasks.length === 0) {
@@ -114,8 +114,9 @@ exports.deleteTask = async (req, res) => {
 
     await Task.deleteOne({ _id: taskId });
 
-    res.status(200).json({ message: "Task deleted successfully" });
+    res.status(200).json({ code:200, message: "Task deleted successfully" });
   } catch (err) {
+    console.error(err.message, "Error deleting task:");
     res.status(200).json({ code:500, message: "Server error", error: err.message });
   }
 };
