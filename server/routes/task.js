@@ -14,8 +14,7 @@ const handleValidation = (req, res, next) => {
 
 
 taskRouter.post("/create", protect, validateTask, handleValidation, taskController.createTask);
-taskRouter.post("/tasks", protect, taskController.getTasks);
-taskRouter.post("/task", protect, taskController.getTaskById);
+taskRouter.get("/tasks", protect, taskController.getTasks);
 taskRouter.post("/update", protect, validateTask, handleValidation, taskController.updateTask);
 taskRouter.post("/delete", protect, taskController.deleteTask);
 
