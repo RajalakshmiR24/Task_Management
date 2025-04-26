@@ -27,7 +27,6 @@ const AuthForm = ({
       className="flex flex-col gap-4 max-w-[378px] w-full mx-auto"
       autoComplete="off"
     >
-      {/* Email */}
       <div className="flex flex-col">
         <label className="text-sm font-medium text-white mb-1">Email</label>
         <input
@@ -42,7 +41,6 @@ const AuthForm = ({
         />
       </div>
 
-      {/* Password */}
       <div className="flex flex-col relative">
         <label className="text-sm font-medium text-white mb-1">Password</label>
         <input
@@ -66,7 +64,6 @@ const AuthForm = ({
         )}
       </div>
 
-      {/* Confirm Password */}
       {showConfirmPassword && (
         <div className="flex flex-col relative">
           <label className="text-sm font-medium text-white mb-1">
@@ -94,7 +91,6 @@ const AuthForm = ({
         </div>
       )}
 
-      {/* Remember Me + Toggle Mode */}
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-2">
           <input
@@ -113,7 +109,6 @@ const AuthForm = ({
         </button>
       </div>
 
-      {/* Submit */}
       <button
         type="submit"
         className="mt-4 w-full h-[46.3px] rounded-md bg-white font-semibold text-black hover:bg-gray-200 transition"

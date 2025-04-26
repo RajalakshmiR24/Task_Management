@@ -1,6 +1,10 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/lemonpay.png";
 import AuthForm from "../Components/Form";
+import { login, register } from "../redux/authSlice";
+import useToast from "../hooks/useToast";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -10,16 +14,42 @@ const Auth = () => {
     confirmPassword: "",
   });
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading, error } = useSelector((state) => state.auth);
+  const { showSuccess, showError } = useToast();
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (isSignUp) {
-      console.log("Signing up with:", formData);
+      if (formData.password !== formData.confirmPassword) {
+        showError("Passwords do not match!");
+        return;
+      }
+
+      dispatch(
+        register(
+          formData.email,
+          formData.password,
+          showSuccess,
+          showError,
+          () => {
+            toggleMode(); // <<< ADD THIS
+            // navigate("/"); // (optional) you can also navigate if you want, or just show login form
+          }
+        )
+      );
     } else {
-      console.log("Signing in with:", formData);
+      dispatch(
+        login(formData.email, formData.password, showSuccess, showError, () => {
+          navigate("/task");
+        })
+      );
     }
   };
 
@@ -30,12 +60,12 @@ const Auth = () => {
 
   return (
     <div className="relative flex flex-col md:flex-row min-h-screen bg-[linear-gradient(to_top_left,#4444A3_5%,white_90%)] overflow-hidden pt-16 sm:pt-8">
-      {/* Yellow Circles */}
+      {/* Background Circles */}
       <div className="absolute w-[250px] h-[250px] bg-[#FDBC31] rounded-full top-[-40px] right-[-140px] opacity-15 z-0 md:right-[-140px] md:top-[-1px] sm:right-[-20px] sm:top-[10px]"></div>
       <div className="absolute w-[200px] h-[200px] bg-[#FDBC31] rounded-full bottom-[-90px] left-[-70px] opacity-15 z-0 sm:left-[-40px]"></div>
       <div className="absolute w-[300px] h-[300px] bg-[#FDBC31] rounded-full bottom-[-150px] right-[40%] opacity-20 hidden md:block z-0"></div>
 
-      {/* Left Section */}
+      {/* Left */}
       <div className="w-full md:w-1/2 p-8 flex flex-col items-center md:items-start text-center md:text-left z-10">
         <img
           src={logo}
@@ -51,7 +81,7 @@ const Auth = () => {
         </div>
       </div>
 
-      {/* Right Section */}
+      {/* Right */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-10 md:p-10 z-10">
         <div className="w-full max-w-[378px] bg-transparent">
           <div className="mb-6">
@@ -73,6 +103,8 @@ const Auth = () => {
             showConfirmPassword={isSignUp}
             toggleMode={toggleMode}
           />
+          {loading && <p>Loading...</p>}
+          {error && <p className="text-red-500">{error}</p>}
         </div>
       </div>
     </div>
