@@ -28,7 +28,7 @@ exports.register = async (req, res) => {
       .json({ code: 201, message: "User registered successfully" });
   } catch (err) {
     res
-      .status(500)
+      .status(200)
       .json({ code: 500, message: "Server error", error: err.message });
   }
 };
@@ -82,7 +82,7 @@ exports.login = async (req, res) => {
     res.status(200).json({ code: 200, message: "Login successful", token });
   } catch (err) {
     res
-      .status(500)
+      .status(200)
       .json({ code: 500, message: "Server error", error: err.message });
   }
 };
