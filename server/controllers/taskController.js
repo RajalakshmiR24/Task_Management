@@ -1,6 +1,6 @@
 const Task = require("../models/Task");
 
-// Create a new task
+
 exports.createTask = async (req, res) => {
   try {
     const { taskName, description, dueDate } = req.body;
@@ -19,7 +19,7 @@ exports.createTask = async (req, res) => {
   }
 };
 
-// Get all tasks for the logged-in user
+
 exports.getTasks = async (req, res) => {
  
   
@@ -31,7 +31,7 @@ exports.getTasks = async (req, res) => {
   }
 };
 
-// Get one task by ID (taskId from req.body)
+
 exports.getTaskById = async (req, res) => {
   try {
     const { taskId } = req.body;
@@ -45,7 +45,7 @@ exports.getTaskById = async (req, res) => {
   }
 };
 
-// Update task (taskId and updates in req.body)
+
 exports.updateTask = async (req, res) => {
   try {
     const { taskId, ...updates } = req.body;
@@ -64,7 +64,7 @@ exports.updateTask = async (req, res) => {
   }
 };
 
-// Delete task (taskId from req.body)
+
 exports.deleteTask = async (req, res) => {
   try {
     const { taskId } = req.body;
