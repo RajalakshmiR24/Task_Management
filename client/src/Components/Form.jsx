@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const AuthForm = ({
   type,
@@ -10,12 +11,23 @@ const AuthForm = ({
   showConfirmPassword,
   toggleMode,
 }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const focusShadow =
+  "focus:shadow-md focus:shadow-yellow-400/90 focus:outline-none ";
+
+
+  const inputClasses =
+    "w-full h-[46.3px] rounded-md bg-white bg-opacity-20 border border-[#E4E4E7] px-3 text-white placeholder-white focus:outline-none";
+
   return (
     <form
       onSubmit={onSubmit}
       className="flex flex-col gap-4 max-w-[378px] w-full mx-auto"
       autoComplete="off"
     >
+      {/* Email */}
       <div className="flex flex-col">
         <label className="text-sm font-medium text-white mb-1">Email</label>
         <input
@@ -25,45 +37,64 @@ const AuthForm = ({
           onChange={onChange}
           required
           autoComplete="off"
-          className="w-full h-[46.3px] rounded-md bg-transparent border border-gray-400 px-3 text-zinc-200 placeholder-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={`${inputClasses} ${focusShadow}`}
           placeholder="example@domain.com"
         />
       </div>
 
-      <div className="flex flex-col">
+      {/* Password */}
+      <div className="flex flex-col relative">
         <label className="text-sm font-medium text-white mb-1">Password</label>
         <input
-          type="password"
+          type={showPassword ? "text" : "password"}
           name="password"
           value={password}
           onChange={onChange}
           required
           minLength={8}
           autoComplete="off"
-          className="w-full h-[46.3px] rounded-md bg-transparent border border-gray-400 px-3 text-zinc-200 placeholder-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={`${inputClasses} ${focusShadow}`}
           placeholder="Min 8 characters"
         />
+        {password && (
+          <div
+            className="absolute right-3 top-[38px] cursor-pointer text-white"
+            onClick={() => setShowPassword((prev) => !prev)}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </div>
+        )}
       </div>
 
+      {/* Confirm Password */}
       {showConfirmPassword && (
-        <div className="flex flex-col">
+        <div className="flex flex-col relative">
           <label className="text-sm font-medium text-white mb-1">
             Confirm Password
           </label>
           <input
-            type="password"
+            type={showConfirm ? "text" : "password"}
             name="confirmPassword"
             value={confirmPassword}
             onChange={onChange}
             required
             minLength={8}
             autoComplete="off"
-            className="w-full h-[46.3px] rounded-md bg-transparent border border-gray-400 px-3 text-zinc-200 placeholder-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`${inputClasses} ${focusShadow}`}
             placeholder="Min 8 characters"
           />
+          {confirmPassword && (
+            <div
+              className="absolute right-3 top-[38px] cursor-pointer text-white"
+              onClick={() => setShowConfirm((prev) => !prev)}
+            >
+              {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+            </div>
+          )}
         </div>
       )}
 
+      {/* Remember Me + Toggle Mode */}
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-2">
           <input
@@ -82,6 +113,7 @@ const AuthForm = ({
         </button>
       </div>
 
+      {/* Submit */}
       <button
         type="submit"
         className="mt-4 w-full h-[46.3px] rounded-md bg-white font-semibold text-black hover:bg-gray-200 transition"
