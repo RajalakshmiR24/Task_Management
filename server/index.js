@@ -5,13 +5,9 @@ require("dotenv").config();
 
 const app = express();
 
-const corsOptions = {
-  origin: process.env.FRONTEND_URL || "https://task-management-lemon-pi.vercel.app/",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
 
-app.use(cors(corsOptions));
+
+app.use(cors());
 
 app.use(express.json());
 
