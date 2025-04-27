@@ -7,10 +7,10 @@ export const fetchTasks = createAsyncThunk(
     try {
       const response = await axiosInstance.get("/api/tasks/tasks");
       if (response.data.code === 404) {
-        return rejectWithValue(response.data.message); 
+        return rejectWithValue(response.data.message);
       }
-      
-      return response.data; 
+
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch tasks"
@@ -51,17 +51,12 @@ export const deleteTask = createAsyncThunk(
 
 export const updateTask = createAsyncThunk(
   "tasks/updateTask",
-  async (updatedTaskData, { rejectWithValue }) => {
+  async (taskData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(
-        "/api/tasks/update",
-        updatedTaskData
-      );
-      return response.data;
+      const response = await axiosInstance.post("/api/tasks/update", taskData);
+      return response.data.task;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to update task"
-      );
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -84,7 +79,7 @@ const taskSlice = createSlice({
         state.loading = false;
         state.tasks = action.payload.tasks || [];
       })
-      
+
       .addCase(fetchTasks.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
@@ -118,14 +113,16 @@ const taskSlice = createSlice({
       })
       .addCase(updateTask.fulfilled, (state, action) => {
         state.loading = false;
-        const updatedTask = action.payload.task;
+
         state.tasks = state.tasks.map((task) =>
-          task._id === updatedTask._id ? updatedTask : task
+          task._id === action.payload._id ? action.payload : task
         );
+        state.successMessage = "Task updated successfully";
       })
       .addCase(updateTask.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.successMessage = null;
       });
   },
 });

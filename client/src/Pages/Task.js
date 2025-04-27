@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Plus, LogOut } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTasks, deleteTask } from "../redux/taskSlice";
+import { fetchTasks, deleteTask, updateTask } from "../redux/taskSlice";
 import { useNavigate } from "react-router-dom";
 import TaskTable from "../Components/Table";
 import TaskModal from "../Components/TaskModal";
 import Pagination from "../Components/Pagination";
-import useToast from "../hooks/useToast"; // ✅ Custom toast hook
+import useToast from "../hooks/useToast";
 
 const Task = () => {
   const dispatch = useDispatch();
@@ -25,9 +25,11 @@ const Task = () => {
   useEffect(() => {
     if (!hasFetched.current) {
       hasFetched.current = true;
-      dispatch(fetchTasks()).unwrap().catch((err) => {
-        showError(err); // Only show toast on error
-      });
+      dispatch(fetchTasks())
+        .unwrap()
+        .catch((err) => {
+          showError(err.message || "Failed to fetch tasks.");
+        });
     }
   }, [dispatch, showError]);
 
@@ -56,9 +58,9 @@ const Task = () => {
 
     try {
       const deleteResponse = await dispatch(deleteTask(deleteTaskId)).unwrap();
-      showSuccess(deleteResponse.message); // Dynamic message after delete
+      showSuccess(deleteResponse.message || "Task deleted successfully!");
     } catch (error) {
-      showError(error);
+      showError(error.message || "Failed to delete task.");
     } finally {
       setDeleteTaskId(null);
     }
@@ -68,13 +70,22 @@ const Task = () => {
     setDeleteTaskId(null);
   };
 
+  const handleEdit = async (taskData) => {
+    try {
+      await dispatch(updateTask(taskData)).unwrap();
+      showSuccess("Task updated successfully!");
+    } catch (error) {
+      showError(error.message || "Failed to update task.");
+    }
+  };
+
   return (
     <div className="p-4">
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-blue-700">
           Tasks Management
         </h1>
-
         <div className="flex gap-4">
           <button
             onClick={handleAddTask}
@@ -82,7 +93,6 @@ const Task = () => {
           >
             <Plus size={20} /> Add Task
           </button>
-
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-full shadow-md hover:bg-red-700"
@@ -104,8 +114,8 @@ const Task = () => {
             setMenuOpenId={setMenuOpenId}
             indexOfFirstTask={indexOfFirstTask}
             onDelete={handleDeleteConfirmation}
+            onEdit={handleEdit}
           />
-
           <Pagination
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}

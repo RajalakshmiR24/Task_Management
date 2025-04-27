@@ -11,15 +11,17 @@ const Pagination = ({ currentPage, setCurrentPage, totalPages }) => {
       >
         &lt;
       </button>
-      {Array.from({ length: totalPages }, (_, i) => (
-        <button
-          key={i}
-          onClick={() => setCurrentPage(i + 1)}
-          className={`px-3 py-1 rounded-md ${currentPage === i + 1 ? 'bg-blue-700 text-white' : 'bg-white shadow-md hover:bg-gray-100'}`}
-        >
-          {i + 1}
-        </button>
-      ))}
+      <div className="hidden sm:flex gap-2">
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentPage(i + 1)}
+            className={`px-3 py-1 rounded-md ${currentPage === i + 1 ? 'bg-blue-700 text-white' : 'bg-white shadow-md hover:bg-gray-100'}`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
       <button
         onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
         className="p-2 rounded-md shadow-md hover:bg-gray-100"

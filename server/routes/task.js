@@ -15,7 +15,7 @@ const handleValidation = (req, res, next) => {
 
 taskRouter.post("/create", protect, validateTask, handleValidation, taskController.createTask);
 taskRouter.get("/tasks", protect, taskController.getTasks);
-taskRouter.post("/update", protect, validateTask, handleValidation, taskController.updateTask);
+taskRouter.post("/update", protect, taskController.updateTask);
 taskRouter.post("/delete", protect, taskController.deleteTask);
 
 module.exports = taskRouter;
