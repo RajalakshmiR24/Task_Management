@@ -1,36 +1,31 @@
 const express = require("express");
 const cors = require("cors");
-const mongoose = require("mongoose");
-require("dotenv").config();
+require("dotenv").config(); 
+
+const connectDB = require("./database/db");
+const userRoutes = require("./routes/user"); 
+const taskRoutes = require("./routes/task");
 
 const app = express();
+const PORT = process.env.PORT; 
 
-const corsOptions = {
-  origin: process.env.FRONTEND_URL || "https://task-management-lemon-pi.vercel.app/",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
 
-app.use(cors(corsOptions));
+connectDB();
 
+
+app.use(cors());
 app.use(express.json());
 
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
 
 app.get("/", (req, res) => {
-  res.send("Hello, Task Management API is working!");
+  res.send("Backend with .env and MongoDB is running!");
 });
 
-app.post("/api/tasks", (req, res) => {
-  res.status(201).json({ message: "Task created successfully!" });
-});
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running on port ${process.env.PORT}`);
+app.use("/api/users", userRoutes);
+app.use("/api/tasks", taskRoutes);
+
+
+app.listen(PORT, () => {
+  console.log(`Server running on ${PORT}`);
 });
