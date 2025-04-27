@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { createTask, fetchTasks } from "../redux/taskSlice";
 import { formatDueDate, getMinDateTime } from "../utils/dateUtils";
 import useToast from "../hooks/useToast";
+import { FaPlus, FaSignOutAlt } from "react-icons/fa";  // Import icons for mobile buttons
 
 const TaskModal = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
@@ -126,22 +127,24 @@ const TaskModal = ({ isOpen, onClose }) => {
             </div>
 
             {/* Submit Button */}
-            <div className="flex justify-between items-center mt-4">
+            <div className="flex justify-between items-center mt-4 space-x-3">
               <button
                 type="button"
-                className="bg-gray-300 text-black rounded-md px-4 py-2"
+                className="bg-gray-300 text-black rounded-md px-4 py-2 text-sm w-full sm:w-auto sm:text-xs sm:px-3 sm:py-1 flex justify-center items-center space-x-2"
                 onClick={onClose}
               >
-                Cancel
+                <span className="hidden sm:block">Cancel</span>
+                <span className="sm:hidden"><FaSignOutAlt /></span>
               </button>
               <button
                 type="submit"
-                className={`bg-blue-600 text-white rounded-md px-4 py-2 ${
+                className={`bg-blue-600 text-white rounded-md px-4 py-2 text-sm w-full sm:w-auto sm:text-xs sm:px-3 sm:py-1 flex justify-center items-center space-x-2 ${
                   isSubmitting ? "opacity-50 cursor-not-allowed" : ""
                 }`}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Submitting..." : "Add Task"}
+                <span className="hidden sm:block">{isSubmitting ? "Submitting..." : "Add Task"}</span>
+                <span className="sm:hidden">{isSubmitting ? <FaPlus className="animate-spin" /> : <FaPlus />}</span>
               </button>
             </div>
           </form>
