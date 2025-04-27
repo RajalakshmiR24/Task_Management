@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import { useDispatch } from 'react-redux';
-import { createTask } from '../redux/taskSlice';
-import { toast, ToastContainer } from 'react-toastify'; 
-
-import 'react-toastify/dist/ReactToastify.css'; 
+import { createTask, fetchTasks } from '../redux/taskSlice';
+import useToast from '../hooks/useToast';  
 
 const TaskModal = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
+  const { showSuccess, showError } = useToast();  
 
   const [taskName, setTaskName] = useState('');
   const [description, setDescription] = useState('');
@@ -47,43 +46,47 @@ const TaskModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const trimmedTaskName = stripHTML(taskName.trim());
     const trimmedDescription = stripHTML(description.trim());
-  
+
     if (!trimmedTaskName || !dueDate) {
-      toast.error("Task Title and Due Date are required.");
+      showError("Task Title and Due Date are required."); 
       return;
     }
-  
+
     if (new Date(dueDate) < new Date()) {
-      toast.error("Due Date cannot be in the past.");
+      showError("Due Date cannot be in the past."); 
       return;
     }
-  
+
     setIsSubmitting(true);
-  
+
     try {
       const result = await dispatch(createTask({
         taskName: trimmedTaskName,
         description: trimmedDescription,
         dueDate: formatDueDate(dueDate),
       })).unwrap();
-  
-      if (result && result.message) {
-        toast.success(result.message || 'Task created successfully!'); 
+
+      
+      if (result && (result.code === 200 || result.code === 201)) {
+        showSuccess(result.message);
+        dispatch(fetchTasks()); 
+
+        resetForm();
+        onClose();
+      } else {
+        showError(result.message || "Something went wrong. Please try again.");
       }
-  
-      resetForm();
-      onClose();
+
     } catch (error) {
       console.error('Failed to create task:', error);
-      toast.error(error.message || 'Something went wrong. Please try again.'); 
+      showError(error.message || "Something went wrong. Please try again."); 
     } finally {
       setIsSubmitting(false);
     }
   };
-  
 
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
@@ -160,20 +163,6 @@ const TaskModal = ({ isOpen, onClose }) => {
           </form>
         </Dialog.Panel>
       </div>
-
-      {/* Toast Container */}
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
     </Dialog>
   );
 };

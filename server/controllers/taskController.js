@@ -44,6 +44,7 @@ exports.createTask = async (req, res) => {
       message: "Task created successfully",
     });
   } catch (err) {
+    console.error(err.message, "Error creating task:");
     res.status(200).json({ code:500, message: "Server error", error: err.message });
   }
 };
@@ -58,7 +59,7 @@ exports.getTasks = async (req, res) => {
       return res.status(200).json({ code:404, message: "No data found" });
     }
 
-    res.status(200).json(tasks);
+    res.status(200).json({code:200, tasks});
   } catch (err) {
     res.status(200).json({ code:500,message: "Server error", error: err.message });
   }
@@ -66,10 +67,38 @@ exports.getTasks = async (req, res) => {
 
 exports.updateTask = async (req, res) => {
   try {
-    const { taskId, ...updates } = req.body;
+    const { taskId, dueDate, taskName, description } = req.body;
 
     if (!taskId) {
-      return res.status(200).json({ code:400,message: "Task ID is required" });
+      return res.status(200).json({ code: 400, message: "Task ID is required" });
+    }
+
+    const updates = {};
+
+    if (taskName !== undefined) {
+      updates.taskName = taskName.trim();
+    }
+
+    if (description !== undefined) {
+      updates.description = description;
+    }
+
+    if (dueDate !== undefined) {
+      const [datePart, timePart, meridian] = dueDate.split(/[\s:]+/);
+      const [month, day, year] = datePart.split("/").map(Number);
+      let hour = Number(timePart);
+      const minute = Number(dueDate.split(/[\s:]+/)[2]);
+
+      if (meridian.toUpperCase() === "PM" && hour < 12) hour += 12;
+      if (meridian.toUpperCase() === "AM" && hour === 12) hour = 0;
+
+      const utcDueDate = new Date(Date.UTC(year, month - 1, day, hour, minute));
+
+      if (isNaN(utcDueDate.getTime())) {
+        return res.status(200).json({ code: 400, message: "Invalid due date format" });
+      }
+
+      updates.dueDate = utcDueDate;
     }
 
     const updatedTask = await Task.findOneAndUpdate(
@@ -79,18 +108,19 @@ exports.updateTask = async (req, res) => {
     );
 
     if (!updatedTask) {
-      return res
-        .status(200)
-        .json({ code:404, message: "Task not found or unauthorized" });
+      return res.status(200).json({ code: 404, message: "Task not found or unauthorized" });
     }
 
-    res
-      .status(200)
-      .json({ message: "Task updated successfully", task: updatedTask });
+    res.status(200).json({
+      code: 200,
+      message: "Task updated successfully",
+      task: updatedTask,
+    });
   } catch (err) {
-    res.status(200).json({ code:500, message: "Server error", error: err.message });
+    res.status(200).json({ code: 500, message: "Server error", error: err.message });
   }
 };
+
 
 exports.deleteTask = async (req, res) => {
   try {

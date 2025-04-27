@@ -2,8 +2,16 @@ import React from "react";
 import { MoreVertical } from "lucide-react";
 
 const TaskTable = ({ tasks, menuOpenId, setMenuOpenId, indexOfFirstTask, onDelete }) => {
+  // Ensure tasks is always an array and each task has a valid dueDate
+  const safeTasks = Array.isArray(tasks) ? tasks.filter(task => task?.dueDate) : [];
+
+  const toggleMenu = (id) => {
+    setMenuOpenId(menuOpenId === id ? null : id);
+  };
+
   return (
     <>
+      {/* Desktop Table View */}
       <div className="hidden md:block">
         <table className="w-full text-left">
           <thead className="text-blue-700">
@@ -16,33 +24,27 @@ const TaskTable = ({ tasks, menuOpenId, setMenuOpenId, indexOfFirstTask, onDelet
             </tr>
           </thead>
           <tbody>
-            {tasks.map((task, index) => (
+            {safeTasks.map((task, index) => (
               <tr
-                key={index}
+                key={task._id}  // Using _id to ensure unique key for each task
                 className="bg-white shadow-md rounded-md my-2 hover:shadow-lg transition"
               >
                 <td className="p-4">{indexOfFirstTask + index + 1}</td>
-                <td className="p-4">
-                  {new Date(task.dueDate).toLocaleString()}
-                </td>
+                <td className="p-4">{new Date(task.dueDate).toLocaleString()}</td>
                 <td className="p-4 font-semibold">{task.taskName}</td>
                 <td className="p-4">{task.description}</td>
                 <td className="p-4 relative">
-                  <button
-                    onClick={() =>
-                      setMenuOpenId(menuOpenId === index ? null : index)
-                    }
-                  >
+                  <button onClick={() => toggleMenu(task._id)}>
                     <MoreVertical />
                   </button>
-                  {menuOpenId === index && (
+                  {menuOpenId === task._id && (
                     <div className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-lg z-10">
                       <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
                         Edit
                       </button>
                       <button
                         className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                        onClick={() => onDelete(task._id)} // Trigger delete modal on click
+                        onClick={() => onDelete(task._id)}
                       >
                         Delete
                       </button>
@@ -55,10 +57,11 @@ const TaskTable = ({ tasks, menuOpenId, setMenuOpenId, indexOfFirstTask, onDelet
         </table>
       </div>
 
+      {/* Mobile View */}
       <div className="block md:hidden">
-        {tasks.map((task, index) => (
+        {safeTasks.map((task) => (
           <div
-            key={index}
+            key={task._id}  // Using _id to ensure unique key for each task
             className="bg-white shadow-md rounded-md p-4 mb-4 relative"
           >
             <h2 className="font-semibold text-lg">{task.taskName}</h2>
@@ -68,21 +71,17 @@ const TaskTable = ({ tasks, menuOpenId, setMenuOpenId, indexOfFirstTask, onDelet
             </p>
 
             <div className="absolute top-4 right-4">
-              <button
-                onClick={() =>
-                  setMenuOpenId(menuOpenId === index ? null : index)
-                }
-              >
+              <button onClick={() => toggleMenu(task._id)}>
                 <MoreVertical />
               </button>
-              {menuOpenId === index && (
+              {menuOpenId === task._id && (
                 <div className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-lg z-10">
                   <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
                     Edit
                   </button>
                   <button
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                    onClick={() => onDelete(task._id)} // Trigger delete modal on click
+                    onClick={() => onDelete(task._id)}
                   >
                     Delete
                   </button>

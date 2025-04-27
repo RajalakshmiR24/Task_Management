@@ -11,30 +11,25 @@ import useToast from "../hooks/useToast"; // ✅ Custom toast hook
 const Task = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { showSuccess, showError } = useToast(); // ✅ Use custom hook
+  const { showSuccess, showError } = useToast();
   const { tasks, loading, error } = useSelector((state) => state.tasks);
 
   const [isOpen, setIsOpen] = useState(false);
   const [menuOpenId, setMenuOpenId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const tasksPerPage = 5;
   const [deleteTaskId, setDeleteTaskId] = useState(null);
 
+  const tasksPerPage = 5;
   const hasFetched = useRef(false);
 
   useEffect(() => {
     if (!hasFetched.current) {
       hasFetched.current = true;
-      dispatch(fetchTasks())
-        .unwrap()
-        .then((data) => {
-          showSuccess(data?.message);
-        })
-        .catch((err) => {
-          showError(err);
-        });
+      dispatch(fetchTasks()).unwrap().catch((err) => {
+        showError(err); // Only show toast on error
+      });
     }
-  }, [dispatch, showSuccess, showError]);
+  }, [dispatch, showError]);
 
   const validTasks = Array.isArray(tasks) ? tasks : [];
   const indexOfLastTask = currentPage * tasksPerPage;
@@ -58,20 +53,16 @@ const Task = () => {
 
   const handleDelete = async () => {
     if (!deleteTaskId) return;
-  
-    const idToDelete = deleteTaskId;
-    setDeleteTaskId(null);
-  
+
     try {
-      const deleteResponse = await dispatch(deleteTask(idToDelete)).unwrap();
-      showSuccess(deleteResponse.message); // ✅ Dynamic message
-  
-      await dispatch(fetchTasks()).unwrap();
+      const deleteResponse = await dispatch(deleteTask(deleteTaskId)).unwrap();
+      showSuccess(deleteResponse.message); // Dynamic message after delete
     } catch (error) {
       showError(error);
+    } finally {
+      setDeleteTaskId(null);
     }
   };
-  
 
   const handleCancelDelete = () => {
     setDeleteTaskId(null);
