@@ -7,15 +7,13 @@ const userRoutes = require("./routes/user");
 const taskRoutes = require("./routes/task");
 
 const app = express();
+const PORT = process.env.PORT; 
 
-const corsOptions = {
-  origin: process.env.FRONTEND_URL || "https://task-management-lemon-pi.vercel.app/",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
 
-app.use(cors(corsOptions));
+connectDB();
 
+
+app.use(cors());
 app.use(express.json());
 
 
